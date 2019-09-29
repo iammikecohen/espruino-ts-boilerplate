@@ -6,16 +6,27 @@
  * replaced by it's value (avoiding a bunch of variables in espruino code)
  */
 declare type __CONFIG__ = {
-    pins: {
-        sclPin: Pin,
-        sdaPin: Pin,
-    },
+  pins: {
+    sclPin: Pin;
+    sdaPin: Pin;
+    step1p1: Pin;
+    step1p2: Pin;
+    step1p3: Pin;
+    step1p4: Pin;
+  };
 
-    // Your network name and password.
-    wifi: {
-        ssid: string,
-        password: string,
-    },
-}
+  // Your network name and password.
+  wifi: {
+    ssid: string;
+    password: string;
+  };
 
-declare var __CONFIG__:__CONFIG__;
+  mqtt: {
+    username: string;
+    address: string;
+    password: string;
+    port: number;
+  };
+};
+
+declare var __CONFIG__: __CONFIG__;
