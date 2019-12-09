@@ -1,0 +1,21 @@
+Device
+    should provide a LWT
+    needs attributes:
+        $homie
+        $name
+        $state
+        $nodes
+            $name
+            $type
+            $properties
+                $name
+                $datatype
+                    optional
+                $format
+                $settable
+                $retained
+                $unit
+        $extension - ''
+    optional
+        $implementation - 'esp8266'
+LWT             homie/device ID/$state

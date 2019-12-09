@@ -30,7 +30,13 @@ function rollupConfigFactory(debug = true) {
     userAppConfig = {};
   }
 
-  const config = Object.assign({}, appConfig, userAppConfig);
+  try {
+    homieConfig = yaml.load(fs.readFileSync("./config/homie-config.yaml"));
+  } catch (e) {
+    homieConfig = {};
+  }
+
+  const config = Object.assign({}, appConfig, userAppConfig, homieConfig);
   const replaceValues = _.mapValues(flatten({ __CONFIG__: config }), v => {
     if (typeof v === "string" && v.match(/^(NodeMCU\.)?D\d{1,2}/)) {
       return v;
