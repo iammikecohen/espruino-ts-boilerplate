@@ -8,6 +8,7 @@ export class MyWifi {
   }
 
   connect() {
+    const pass = password.length > 0 ? { password: password } : {};
     console.log("connecting to wifi");
     wifi.on("connected", function(details) {
       console.log(details);
@@ -15,10 +16,12 @@ export class MyWifi {
     wifi.on("disconnected", function(details) {
       console.log(details);
     });
-    wifi.connect(ssid, { password: password }, ap => {
+    wifi.connect(ssid, pass, ap => {
       if (!ap) {
         console.log("connected?", ap);
-        wifi.stopAP();
+        // wifi.stopAP();
+      } else {
+        // wifi.startAP();
       }
       this.onConnect();
     });
