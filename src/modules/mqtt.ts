@@ -1,4 +1,4 @@
-const mqtt = require("tinyMQTT");
+import * as mqtt from "./tinyMQTT";
 
 const address = __CONFIG__.mqtt.address,
   username = __CONFIG__.mqtt.username,
@@ -9,12 +9,19 @@ export class MyMQTT {
   connection;
   maxRetries = 4;
   retries = 0;
-  constructor() {
-    this.connection = require("tinyMQTT").create(address, {
+  constructor() {}
+
+  connect(opts) {
+    console.log("trying to connect mqtt", opts);
+    this.connection = mqtt.create(address, {
       username,
       password,
-      port
+      port,
+      will_topic: opts.will_topic,
+      will_payload: opts.will_payload
     });
+
+    this.connection.connect();
 
     this.connection.on("connected", () => {
       this.retries = 0;
@@ -35,9 +42,8 @@ export class MyMQTT {
     });
   }
 
-  connect() {
-    console.log("trying to connect");
-    this.connection.connect();
+  publish(msg) {
+    this.connection.publish(msg.topic, msg.payload);
   }
 
   onConnect() {}
@@ -45,7 +51,7 @@ export class MyMQTT {
   onDisconnect() {
     this.retries++;
     if (this.retries < this.maxRetries) {
-      this.connect();
+      this.connect({});
     } else {
       const err = new Error("Maximum number of retries exceeded");
       throw err;
