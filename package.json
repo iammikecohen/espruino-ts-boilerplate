@@ -28,5 +28,8 @@
     "rollup-plugin-uglify": "^3.0.0",
     "typescript": "^2.7.2",
     "uglify-js": "^3.3.16"
+  },
+  "dependencies": {
+    "@types/espruino": "^1.94.3"
   }
 }
