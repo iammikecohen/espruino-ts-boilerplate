@@ -1,11 +1,11 @@
 import { HomieNode } from "./homie-node.interface";
 
 export interface HomieDevice {
-  homie: string;
-  name: string;
-  state: HomieDeviceState;
-  nodes: HomieNode[];
-  extensions: string;
+  $homie: string;
+  $name: string;
+  $state: HomieDeviceState;
+  $nodes: HomieNode[];
+  $extensions: string;
   $implementation?: string;
 }
 

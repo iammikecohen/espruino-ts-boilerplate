@@ -31,11 +31,11 @@ function rollupConfigFactory(debug = true) {
   }
 
   try {
-    homieConfig = yaml.load(fs.readFileSync("./config/homie-config.yaml"));
+    homieConfig = require("./config/homie-config.json");
   } catch (e) {
     homieConfig = {};
   }
-
+  console.log("homie", homieConfig);
   const config = Object.assign({}, appConfig, userAppConfig, homieConfig);
   const replaceValues = _.mapValues(flatten({ __CONFIG__: config }), v => {
     if (typeof v === "string" && v.match(/^(NodeMCU\.)?D\d{1,2}/)) {
@@ -56,8 +56,8 @@ function rollupConfigFactory(debug = true) {
           // output: { beautify: true }, // Activate for debugging purposes
           compress: true,
           mangle: { reserved: ["onInit"], toplevel: true }
-        },
-        minify
+        }
+        // minify
       )
     );
   }

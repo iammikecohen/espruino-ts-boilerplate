@@ -5,6 +5,8 @@
  * Every prop there will later (in bundling time) be
  * replaced by it's value (avoiding a bunch of variables in espruino code)
  */
+import { HomieDevice } from "homie-device.interface";
+
 declare type __CONFIG__ = {
   pins: {
     sclPin: Pin;
@@ -13,6 +15,7 @@ declare type __CONFIG__ = {
     step1p2: Pin;
     step1p3: Pin;
     step1p4: Pin;
+    homeBtn: Pin;
   };
 
   // Your network name and password.
@@ -27,6 +30,8 @@ declare type __CONFIG__ = {
     password: string;
     port: number;
   };
+
+  homie: HomieDevice;
 };
 
 declare var __CONFIG__: __CONFIG__;
