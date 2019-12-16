@@ -1,42 +1,22 @@
 import { MyWifi } from "./modules/wifi";
 import { MyMQTT } from "./modules/mqtt";
-import { Blinds } from "./modules/blinds";
+import { Homie } from "./modules/homie";
 
 function main() {
   const wifi = new MyWifi();
   const mqtt = new MyMQTT();
-  const blindsMotor = new Blinds();
-
+  const homie = new Homie();
   console.log("appStart");
-
   wifi.onConnect = () => {
     console.log("connected to wifi");
-    mqtt.connect();
+    const LWT = homie.getLWT();
+    mqtt.connect(LWT);
   };
 
   mqtt.onConnect = () => {
-    console.log("connected to mqtt");
-    mqtt.connection.subscribe("espruino/test");
-
-    mqtt.connection.on("message", function(msg) {
-      console.log(msg.topic);
-      console.log(msg.message);
-      msg.message = JSON.parse(msg.message);
-      if (msg.topic) {
-        console.log(`checking: ${msg.message.func}`);
-        switch (msg.message.func) {
-          case "goHome":
-            blindsMotor.goHome();
-            break;
-          case "move":
-            console.log("moving");
-            blindsMotor.move(msg.message.value);
-            break;
-          default:
-            break;
-        }
-      }
-    });
+    // blindsMotor.mqttSetup(mqtt);
+    console.log("mqtt connected");
+    homie.connectMQTT(mqtt);
   };
 }
 

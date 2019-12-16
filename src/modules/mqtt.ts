@@ -28,10 +28,12 @@ export class MyMQTT {
       this.onConnect();
     });
 
-    // mqtt.on("message", function(msg){
-    //     console.log(msg.topic);
-    //     console.log(msg.message);
-    // });
+    this.connection.on("message", function(msg) {
+      console.log("received", msg.topic);
+      console.log("data", msg.message);
+      console.log("call cb");
+      console.log(this.callbacks, msg.topic);
+    });
 
     // mqtt.on("published", function(){
     //     console.log("message sent");
@@ -44,6 +46,12 @@ export class MyMQTT {
 
   publish(msg) {
     this.connection.publish(msg.topic, msg.payload);
+  }
+
+  subscribe(msg, cb) {
+    console.log(`subscribing to ${msg}`);
+    this.callbacks[msg] = cb;
+    this.connection.subscribe(msg);
   }
 
   onConnect() {}
