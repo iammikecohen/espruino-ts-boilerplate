@@ -37,7 +37,7 @@ export class Homie {
         i++;
         setTimeout(() => {
           this.mqtt.publish({
-            topic: `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}`,
+            topic: this.getUrlFor(`${node.$name}/${property}`),
             payload: node[property]
           });
         }, i * 300);
@@ -51,13 +51,17 @@ export class Homie {
           setTimeout(() => {
             debug
               ? console.log(
-                  `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/${requiredProperty}`,
+                  this.getUrlFor(
+                    `${node.$name}/${property}/${requiredProperty}`
+                  ),
                   node[property][requiredProperty]
                 )
               : null;
 
             this.mqtt.publish({
-              topic: `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/${requiredProperty}`,
+              topic: this.getUrlFor(
+                `${node.$name}/${property}/${requiredProperty}`
+              ),
               payload: node[property][requiredProperty]
             });
           }, i * 1000 + j * 300);
@@ -65,11 +69,11 @@ export class Homie {
 
         if (node[property].$settable) {
           this.mqtt.subscribe(
-            `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/set`,
+            this.getUrlFor(`${node.$name}/${property}/set`),
             data => {
               debug
                 ? console.log(
-                    `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/set`,
+                    this.getUrlFor(`${node.$name}/${property}/set`),
                     data
                   )
                 : null;
