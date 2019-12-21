@@ -1,6 +1,8 @@
 import { HomieDeviceState } from "homie-device.interface";
 import { MyMQTT } from "./mqtt";
-import { homie } from "./homie.conf";
+import { homie } from "./homie.blinds.conf";
+
+const debug = __CONFIG__.debug;
 
 export class Homie {
   private mqtt: MyMQTT;
@@ -10,7 +12,7 @@ export class Homie {
 
   constructor() {
     this.deviceId = getSerial();
-    this.stateUrl = `${this.rootTopic}/${this.deviceId}/$state`;
+    this.stateUrl = this.getUrlFor("$state");
   }
 
   getLWT() {
@@ -25,9 +27,6 @@ export class Homie {
     this.setState(HomieDeviceState.init);
     this.declareProperties();
     this.setState(HomieDeviceState.ready);
-    this.mqtt.emit.on("incoming", d => {
-      console.log("found", d);
-    });
   }
 
   declareProperties() {
@@ -50,10 +49,12 @@ export class Homie {
         const requiredTopics = ["$name", "$datatype", "$settable"];
         requiredTopics.forEach(requiredProperty => {
           setTimeout(() => {
-            console.log(
-              `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/${requiredProperty}`,
-              node[property][requiredProperty]
-            );
+            debug
+              ? console.log(
+                  `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/${requiredProperty}`,
+                  node[property][requiredProperty]
+                )
+              : null;
 
             this.mqtt.publish({
               topic: `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/${requiredProperty}`,
@@ -66,15 +67,21 @@ export class Homie {
           this.mqtt.subscribe(
             `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/set`,
             data => {
-              console.log(
-                `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/set`,
-                data
-              );
+              debug
+                ? console.log(
+                    `${this.rootTopic}/${this.deviceId}/${node.$name}/${property}/set`,
+                    data
+                  )
+                : null;
             }
           );
         }
       });
     });
+  }
+
+  getUrlFor(endpoint: string) {
+    return `${this.rootTopic}/${this.deviceId}/${endpoint}`;
   }
 
   setState(state: HomieDeviceState) {
