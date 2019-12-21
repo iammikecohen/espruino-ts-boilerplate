@@ -31,7 +31,7 @@ declare type __CONFIG__ = {
     port: number;
   };
 
-  homie: HomieDevice;
+  debug: boolean;
 };
 
 declare var __CONFIG__: __CONFIG__;

@@ -4,6 +4,7 @@ const address = __CONFIG__.mqtt.address,
   username = __CONFIG__.mqtt.username,
   password = __CONFIG__.mqtt.password,
   port = __CONFIG__.mqtt.port;
+const debug = __CONFIG__.debug;
 
 export class MyMQTT {
   connection;
@@ -28,11 +29,11 @@ export class MyMQTT {
       this.onConnect();
     });
 
-    this.connection.on("message", function(msg) {
-      console.log("received", msg.topic);
-      console.log("data", msg.message);
-      console.log("call cb");
-      console.log(this.callbacks, msg.topic);
+    this.connection.on("message", msg => {
+      this.emit("data_received", msg);
+      debug ? console.log("received", msg.topic) : null;
+      debug ? console.log("data", msg.message) : null;
+      debug ? console.log("call cb") : null;
     });
 
     // mqtt.on("published", function(){
@@ -49,8 +50,8 @@ export class MyMQTT {
   }
 
   subscribe(msg, cb) {
-    console.log(`subscribing to ${msg}`);
-    this.callbacks[msg] = cb;
+    debug ? console.log(`subscribing to ${msg}`) : null;
+    // this.callbacks[msg] = cb;
     this.connection.subscribe(msg);
   }
 
