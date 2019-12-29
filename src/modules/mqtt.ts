@@ -36,17 +36,18 @@ export class MyMQTT {
       debug ? console.log("call cb") : null;
     });
 
-    // mqtt.on("published", function(){
-    //     console.log("message sent");
-    // });
-
     this.connection.on("disconnected", () => {
       this.onDisconnect();
     });
   }
 
   publish(msg) {
-    this.connection.publish(msg.topic, msg.payload);
+    return new Promise((resolve, reject) => {
+      this.connection.on("published", () => {
+        resolve(msg);
+      });
+      this.connection.publish(msg.topic, msg.payload);
+    });
   }
 
   subscribe(msg, cb) {
