@@ -25,63 +25,85 @@ export class Homie {
   connectMQTT(mqtt) {
     this.mqtt = mqtt;
     this.setState(HomieDeviceState.init);
-    this.declareProperties();
+    // processNode
+    // declare node attributes
+    // declare properties
+    // declare property attributes
+    this.declareNodes(homie.$nodes);
     this.setState(HomieDeviceState.ready);
   }
 
-  declareProperties() {
-    homie.$nodes.forEach(node => {
-      let i = 0;
-      const requiredTopics = ["$name", "$type", "$properties"];
-      requiredTopics.forEach(property => {
-        i++;
-        setTimeout(() => {
-          this.mqtt.publish({
-            topic: this.getUrlFor(`${node.$name}/${property}`),
-            payload: node[property]
-          });
-        }, i * 300);
-      });
-      let j = 0;
-      const properties = node.$properties.split(",");
-      properties.forEach((property: string) => {
-        j++;
-        const requiredTopics = ["$name", "$datatype", "$settable"];
-        requiredTopics.forEach(requiredProperty => {
-          setTimeout(() => {
-            debug
-              ? console.log(
-                  this.getUrlFor(
-                    `${node.$name}/${property}/${requiredProperty}`
-                  ),
-                  node[property][requiredProperty]
-                )
-              : null;
-
-            this.mqtt.publish({
-              topic: this.getUrlFor(
-                `${node.$name}/${property}/${requiredProperty}`
-              ),
-              payload: node[property][requiredProperty]
-            });
-          }, i * 1000 + j * 300);
+  declareNodes(d: any[]) {
+    if (d.length > 0) {
+      const node = d.shift();
+      this.declareNodeAttributes(node).then(v => {
+        const properties = node.$properties.split(",");
+        this.declareProperties(node, properties).then(() => {
+          console.log("next node", v, d);
+          this.declareNodes(d);
         });
-
-        if (node[property].$settable) {
-          this.mqtt.subscribe(
-            this.getUrlFor(`${node.$name}/${property}/set`),
-            data => {
-              debug
-                ? console.log(
-                    this.getUrlFor(`${node.$name}/${property}/set`),
-                    data
-                  )
-                : null;
-            }
-          );
-        }
       });
-    });
+    } else {
+      console.log("done");
+    }
+  }
+
+  declareNodeAttributes(node, attributes = ["$name", "$type", "$properties"]) {
+    const attribute = attributes.shift();
+    if (attribute) {
+      const url = this.getUrlFor(`${node.$name}/${attribute}`);
+      console.log("posting to", url);
+      return this.mqtt
+        .publish({
+          topic: url,
+          payload: node[attribute]
+        })
+        .then(msg => this.declareNodeAttributes(node, attributes));
+    } else {
+      return Promise.resolve();
+    }
+  }
+
+  makeRequest() {}
+
+  declareProperties(node, properties) {
+    const property = properties.shift();
+
+    if (property) {
+      const requiredTopics = ["$name", "$datatype", "$settable"];
+      return this.setTopic(node, property, requiredTopics).then(v => {
+        console.log(`properties declared for ${property}`);
+        return this.declareProperties(node, properties);
+      });
+    } else {
+      console.log("done with properties");
+      return Promise.resolve();
+    }
+  }
+
+  setTopic(node, property, attributes) {
+    const attribute = attributes.shift();
+
+    if (attribute) {
+      const url = this.getUrlFor(`${node.$name}/${property}/${attribute}`);
+      console.log("posting to", url, node[property][attribute]);
+      const subscriptionUrl = this.getUrlFor(`${node.$name}/${property}/set`);
+      if (node[property].$settable) {
+        this.mqtt.subscribe(subscriptionUrl, data => {
+          this.emit(subscriptionUrl, data);
+        });
+      }
+
+      return this.mqtt
+        .publish({
+          topic: url,
+          payload: node[property][attribute]
+        })
+        .then(msg => this.setTopic(node, property, attributes));
+    } else {
+      console.log("done with topics");
+      return Promise.resolve();
+    }
   }
 
   getUrlFor(endpoint: string) {
