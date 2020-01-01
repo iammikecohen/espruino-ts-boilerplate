@@ -1,6 +1,6 @@
 import { HomieDeviceState } from "homie-device.interface";
 import { MyMQTT } from "./mqtt";
-import { homie } from "./homie.blinds.conf";
+import { homie } from "./homie.moisture.conf";
 
 const debug = __CONFIG__.debug;
 
