@@ -9,19 +9,19 @@ export const homie = {
       speed: {
         $name: "speed",
         $datatype: "integer",
-        $settable: "true",
-        $retained: "true"
+        $settable: true,
+        $retained: true
       },
       location: {
         $name: "location",
         $datatype: "integer",
-        $settable: "true",
-        $retained: "true"
+        $settable: true,
+        $retained: true
       },
       move: {
         $name: "move",
         $datatype: "integer",
-        $settable: "true",
+        $settable: true,
         $retained: "false"
       }
     }

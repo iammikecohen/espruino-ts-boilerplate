@@ -9,8 +9,8 @@ export const homie = {
       moisture: {
         $name: "moisture",
         $datatype: "integer",
-        $settable: "false",
-        $retained: "true"
+        $settable: false,
+        $retained: true
       }
     }
   ]
