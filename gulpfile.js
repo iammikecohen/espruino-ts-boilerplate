@@ -49,6 +49,7 @@ function rollupConfigFactory(debug = true) {
         {
           // output: { beautify: true }, // Activate for debugging purposes
           compress: true,
+          // mangle: false
           mangle: { reserved: ["onInit"], toplevel: true }
         }
         // minify

@@ -34,13 +34,14 @@ export class Homie {
   }
 
   declareNodes(d: any[]) {
+    console.log("nodes", d.length);
     if (d.length > 0) {
       const node = d.shift();
       this.declareNodeAttributes(node).then(v => {
         const properties = node.$properties.split(",");
         this.declareProperties(node, properties).then(() => {
           console.log("next node", v, d);
-          this.declareNodes(d);
+          setTimeout(() => this.declareNodes(d), 0);
         });
       });
     } else {
@@ -67,9 +68,18 @@ export class Homie {
   makeRequest() {}
 
   declareProperties(node, properties) {
+    console.log("declare properties");
     const property = properties.shift();
 
     if (property) {
+      if (node[property].$settable) {
+        const subscriptionUrl = this.getUrlFor(`${node.$name}/${property}/set`);
+        console.log("subscribing because", node[property].$settable, property);
+        this.mqtt.subscribe(subscriptionUrl, data => {
+          this.emit(subscriptionUrl, data);
+        });
+      }
+
       const requiredTopics = ["$name", "$datatype", "$settable"];
       return this.setTopic(node, property, requiredTopics).then(v => {
         console.log(`properties declared for ${property}`);
@@ -86,18 +96,11 @@ export class Homie {
 
     if (attribute) {
       const url = this.getUrlFor(`${node.$name}/${property}/${attribute}`);
-      console.log("posting to", url, node[property][attribute]);
-      const subscriptionUrl = this.getUrlFor(`${node.$name}/${property}/set`);
-      if (node[property].$settable) {
-        this.mqtt.subscribe(subscriptionUrl, data => {
-          this.emit(subscriptionUrl, data);
-        });
-      }
 
       return this.mqtt
         .publish({
           topic: url,
-          payload: node[property][attribute]
+          payload: node[property][attribute].toString()
         })
         .then(msg => this.setTopic(node, property, attributes));
     } else {

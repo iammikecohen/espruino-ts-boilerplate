@@ -6,7 +6,6 @@
  */
 
 var _q;
-console.log("starting tinymqtt setup");
 var TMQ = function(server, optns) {
   var opts = optns || {};
   this.svr = server;
@@ -51,7 +50,6 @@ function mqCon(id) {
   if (_q.wt) {
     flags |= 0x24; /*will retain + will flag*/
     payload += mqStr(_q.wt) + mqStr(_q.wp);
-    console.log("sending LWT");
   }
   if (_q.usr && _q.pwd) {
     flags |= _q.usr ? 0x80 : 0;
@@ -144,6 +142,5 @@ TMQ.prototype.disconnect = function() {
   }
 };
 export const create = function(svr, opts) {
-  console.log("creating instance");
   return new TMQ(svr, opts);
 };
